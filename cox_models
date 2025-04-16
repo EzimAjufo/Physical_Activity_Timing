@@ -1,1 +1,136 @@
+# Depends 
+
+
+# Load exposure/covariate data
+
+
+
+# Releveling time of day variable
+dat_AT$active_TOD = as.factor(dat_AT$active_TOD)
+dat_AT$active_TOD = relevel(dat_AT$active_TOD, ref = "Inactive")
+
+# Subset without incident AF at baseline
+dat_AT_nobaselineAF = subset(dat_AT, prev_af_accel ==0)
+nrow(dat_AT_nobaselineAF)
+
+# Subset without incident HF at baseline
+dat_AT_nobaselineHF = subset(dat_AT, prev_hf_accel == 0)
+nrow(dat_AT_nobaselineHF)
+
+# Subset without incident MI at baseline
+dat_AT_nobaselineMI = subset(dat_AT, prev_mi_accel ==0)
+nrow(dat_AT_nobaselineMI)
+
+# Subset without incident CAD soft at baseline
+dat_AT_nobaselineCADsoft = subset(dat_AT, prev_cadsoft_accel ==0)
+nrow(dat_AT_nobaselineCADsoft)
+
+# Subset without incident CAD hard  at baseline
+dat_AT_nobaselineCADhard = subset(dat_AT, prev_cadhard_accel ==0)
+nrow(dat_AT_nobaselineCADhard)
+
+# MVPA unadjusted model
+Fit_AF_activeTOD = coxph(Surv(time_accel_to_af, incd_af_accel) ~ factor(active_TOD) + factor(sex) + age_accel  + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status),
+                                   data = dat_AT_nobaselineAF)
+summary(Fit_AF_activeTOD)
+
+Fit_HF_activeTOD = coxph(Surv(time_accel_to_hf, incd_hf_accel) ~ factor(active_TOD) + factor(sex) + age_accel  + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status),
+                                   data = dat_AT_nobaselineHF)
+summary(Fit_HF_activeTOD)
+
+Fit_MI_activeTOD = coxph(Surv(time_accel_to_mi, incd_mi_accel) ~ factor(active_TOD) + factor(sex) + age_accel  + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status), 
+                                   data = dat_AT_nobaselineMI)
+summary(Fit_MI_activeTOD)
+
+Fit_CADsoft_activeTOD = coxph(Surv(time_accel_to_cadsoft, incd_cadsoft_accel) ~ active_TOD + factor(sex) + age_accel + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status),
+                                   data = dat_AT_nobaselineCADsoft)
+summary(Fit_CADsoft_activeTOD)
+
+Fit_CVdeath_activeTOD = coxph(Surv(time_to_CVdeath, incident_disease) ~ factor(active_TOD) + factor(sex) + age_accel  + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status),
+                                   data = dat_AT)
+summary(Fit_CVdeath_activeTOD)
+
+# Releveling time of day variable for MVPA adjusted analyses
+dat_AT$active_TOD = as.factor(dat_AT$active_TOD)
+dat_AT$active_TOD = relevel(dat_AT$active_TOD, ref = "active_PM")
+
+dat_AT$active_TOD <- droplevels(factor(dat_AT$active_TOD, exclude = "Inactive"))
+
+
+# Subset without incident AF at baseline
+dat_AT_nobaselineAF = subset(dat_AT, prev_af_accel ==0)
+nrow(dat_AT_nobaselineAF)
+
+# Subset without incident HF at baseline
+dat_AT_nobaselineHF = subset(dat_AT, prev_hf_accel == 0)
+nrow(dat_AT_nobaselineHF)
+
+# Subset without incident MI at baseline
+dat_AT_nobaselineMI = subset(dat_AT, prev_mi_accel ==0)
+nrow(dat_AT_nobaselineMI)
+
+# Subset without incident MI at baseline
+dat_AT_nobaselineCADsoft = subset(dat_AT, prev_cadsoft_accel ==0)
+nrow(dat_AT_nobaselineCADsoft)
+
+# Subset without incident MI at baseline
+dat_AT_nobaselineCADhard = subset(dat_AT, prev_cadhard_accel ==0)
+nrow(dat_AT_nobaselineCADhard)
+
+# MVPA adjusted model
+Fit_AF_activeTOD_mvpaadj = coxph(Surv(time_accel_to_af, incd_af_accel) ~ active_TOD + factor(sex) + age_accel + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status)  + pspline(mvpa_daily_total,3), 
+                                     subset=(active_TOD !="Inactive"),
+                                   data = dat_AT_nobaselineAF)
+summary(Fit_AF_activeTOD_mvpaadj)
+
+Fit_HF_activeTOD_mvpaadj = coxph(Surv(time_accel_to_hf, incd_hf_accel) ~ active_TOD + factor(sex) + age_accel + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status)  + pspline(mvpa_daily_total,3),
+                                 subset=(active_TOD !="Inactive"),
+                                   data = dat_AT_nobaselineHF)
+summary(Fit_HF_activeTOD_mvpaadj)
+
+Fit_MI_activeTOD_mvpaadj = coxph(Surv(time_accel_to_mi, incd_mi_accel) ~ active_TOD + factor(sex) + age_accel + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status)  + pspline(mvpa_daily_total,3),
+                                 subset=(active_TOD !="Inactive"),
+                                   data = dat_AT_nobaselineMI)
+summary(Fit_MI_activeTOD_mvpaadj)
+
+
+Fit_CADsoft_activeTOD_mvpaadj = coxph(Surv(time_accel_to_cadsoft, incd_cadsoft_accel) ~ active_TOD + factor(sex) + age_accel + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status)  + pspline(mvpa_daily_total,3),
+                                 subset=(active_TOD !="Inactive"),
+                                   data = dat_AT_nobaselineCADsoft)
+summary(Fit_CADsoft_activeTOD_mvpaadj)
+
+Fit_CADhard_activeTOD_mvpaadj = coxph(Surv(time_accel_to_cadhard, incd_cadhard_accel) ~ active_TOD + factor(sex) + age_accel + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status)  + pspline(mvpa_daily_total,3),
+                                 subset=(active_TOD !="Inactive"),
+                                   data = dat_AT_nobaselineCADhard)
+summary(Fit_CADhard_activeTOD_mvpaadj)
+
+Fit_CVdeath_activeTOD_mvpaadj = coxph(Surv(time_to_CVdeath, incident_disease) ~ active_TOD + factor(sex) + age_accel + race_category_adjust +
+                                     factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
+                                     factor(etoh_status)  + pspline(mvpa_daily_total,3),
+                                      subset=(active_TOD !="Inactive"),
+                                   data = dat_AT)
+summary(Fit_CVdeath_activeTOD_mvpaadj)
+
+
+
 
