@@ -12,9 +12,9 @@ col3 <- c("#a50026","#f46d43", "#41ae76", "#006837", "#1a1a1a", "#d6604d", "#359
 ## Needs cox_models_MVPAunadjusted output
 
 # Forestplot code
+# Collect summaries
 
 # AF 
-# Collect summaries
 dat_AF_activeTOD = summary(Fit_AF_activeTOD)
 
 # Extracting key columns, transform to dataframe        
@@ -55,7 +55,7 @@ conf_int_upper = dat_MI_activeTOD$conf.int[, "upper .95"]
 dat_MI_activeTOD_df = data.frame(HR, conf_int_lower, conf_int_upper, p_value)
 dat_MI_activeTOD_df_sub = dat_MI_activeTOD_df[c(1:3), 1:4]
 
-# death
+# CV death
 # Collecting summaries
 dat_CVdeath_activeTOD = summary(Fit_CVdeath_activeTOD)
 
@@ -113,7 +113,6 @@ new_rows_Qu <- data.frame(
   Outcome = c("AF_Inactive", "HF_Inactive", "MI_Inactive", "Death_Inactive"))# The new row names
 
 
-## 
 # Calculating absolute number of events 
 
 # AF
