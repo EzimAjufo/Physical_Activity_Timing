@@ -1,0 +1,165 @@
+# Load key packages 
+
+install.packages('logistf')
+install.packages('tidyverse')
+install.packages('cmprsk')
+install.packages('ggsurvfit')
+install.packages("patchwork")
+install.packages("scales")
+install.packages("colorspace")
+install.packages("broom")
+install.packages("IRdisplay")
+install.packages("kableExtra")
+install.packages("ggsurvfit")
+install.packages('R.utils')
+install.packages('splines')
+install.packages('ggh4x')
+install.packages('ggthemes')
+install.packages('data.table')
+install.packages("ggVennDiagram")
+install.packages('CoxR2')
+install.packages("colorspace")
+install.packages("scales")
+
+suppressWarnings({
+library(magrittr)
+library('tidyverse')
+library('cmprsk')
+library('ggsurvfit')
+library("patchwork")
+library ("scales")
+library("colorspace")
+library("broom")
+library("IRdisplay")
+library("kableExtra")
+library("ggsurvfit")
+library('R.utils')
+library('splines')
+library('ggh4x')
+library('ggthemes') 
+library('data.table')
+library(flextable)
+library(officer)
+library('CoxR2')
+library("colorspace")
+library("scales")
+ })
+
+# Load data
+dat_AT = fread('complete_time_with_hours_121224.csv', stringsAsFactors = F, data.table = F)
+dat_revokedconsent = fread('w7089_20241216.csv', stringsAsFactors = F, data.table = F)
+dat_CVmortality = fread('cv_death_restricted_v3_202307.tsv', stringsAsFactors = FALSE, data.table = FALSE)
+dat_CADhard= fread('cad_hard_202401.csv', stringsAsFactors = F, data.table = F)
+dat_CADsoft = fread('cad_202401.csv', stringsAsFactors = F, data.table = F)
+
+dat_CAD = merge(dat_CADhard, dat_CADsoft, by = "sample_id",
+                    suffix = c("_CADhard", "_CADsoft"))
+
+dat_AT = merge(dat_AT, dat_CAD, by = "sample_id", 
+              all.x = T, all.y = F)
+
+# Exclusions - revoked consent
+
+sum(dat_revokedconsent$V1 %in% dat_AT$sample_id)
+dat_AT <- dat_AT[!dat_AT$sample_id %in% dat_revokedconsent$V1, ]
+
+# Merging phenotype files
+
+dat_AT = merge(dat_AT, dat_CVmortality, by = "sample_id", all.x = TRUE, all.y = FALSE) 
+dim(dat_AT)
+
+# Step 1: Create time of day variables
+# Calculate row-wise totals for morning MVPA
+dat_AT$mvpa_daily_total_AM <- rowSums(dat_AT[, c("mvpa_hour7", "mvpa_hour8", "mvpa_hour9", "mvpa_hour10", "mvpa_hour11", "mvpa_hour12")], na.rm = TRUE)
+dat_AT$mvpa_daily_total_AM = as.numeric(dat_AT$mvpa_daily_total_AM)
+summary(dat_AT$mvpa_daily_total_AM)
+
+# Calculate row-wise totals for afternoon MVPA
+dat_AT$mvpa_daily_total_afternoon <- rowSums(dat_AT[, c("mvpa_hour13", "mvpa_hour14", "mvpa_hour15", "mvpa_hour16", "mvpa_hour17", "mvpa_hour18")], na.rm = TRUE)
+dat_AT$mvpa_daily_total_afternoon = as.numeric(dat_AT$mvpa_daily_total_afternoon)
+summary(dat_AT$mvpa_daily_total_afternoon)
+
+# Calculate row-wise totals for evening MVPA
+dat_AT$mvpa_daily_total_PM <- rowSums(dat_AT[, c("mvpa_hour19", "mvpa_hour20", "mvpa_hour21", "mvpa_hour22", "mvpa_hour23", "mvpa_hour24")], na.rm = TRUE)
+dat_AT$mvpa_daily_total_PM = as.numeric(dat_AT$mvpa_daily_total_PM)
+summary(dat_AT$mvpa_daily_total_PM)
+
+# Calculate row-wise totals for evening MVPA
+dat_AT$mvpa_daily_total_overnight <- rowSums(dat_AT[, c("mvpa_hour1", "mvpa_hour2", "mvpa_hour3", "mvpa_hour4", "mvpa_hour5", "mvpa_hour6")], na.rm = TRUE)
+dat_AT$mvpa_daily_total_overnight = as.numeric(dat_AT$mvpa_daily_total_overnight)
+summary(dat_AT$mvpa_daily_total_overnight)
+
+# Step 2a: Create simple majority MVPA timing variable 
+# Active and time and day classification
+# Majority AM/Afternoon/PM
+
+dat_AT$active_AM = ifelse(dat_AT$mvpa_daily_total_AM > dat_AT$mvpa_daily_total_afternoon &  
+                         dat_AT$mvpa_daily_total_AM > dat_AT$mvpa_daily_total_PM,
+                           1, 0)
+
+table(dat_AT$active_AM)
+
+dat_AT$active_afternoon = ifelse(dat_AT$mvpa_daily_total_afternoon > dat_AT$mvpa_daily_total_AM &  
+                         dat_AT$mvpa_daily_total_afternoon > dat_AT$mvpa_daily_total_PM,
+                           1, 0)
+
+table(dat_AT$active_afternoon)
+
+dat_AT$active_PM = ifelse(dat_AT$mvpa_daily_total_PM > dat_AT$mvpa_daily_total_AM &  
+                         dat_AT$mvpa_daily_total_PM > dat_AT$mvpa_daily_total_afternoon,
+                           1, 0)
+
+table(dat_AT$active_PM)
+
+
+dat_AT$active_overnight = ifelse(dat_AT$mvpa_daily_total_overnight > dat_AT$mvpa_daily_total_AM &  
+                                    dat_AT$mvpa_daily_total_overnight > dat_AT$mvpa_daily_total_afternoon &
+                                    dat_AT$mvpa_daily_total_overnight > dat_AT$mvpa_daily_total_PM,
+                           1, 0)
+
+table(dat_AT$active_overnight)
+
+
+
+# Correct classification for active_mixed
+dat_AT$active_Mixed <- ifelse(
+    dat_AT$active_afternoon == 0 & 
+    dat_AT$active_AM == 0 & 
+    dat_AT$active_PM == 0 & 
+    (
+      dat_AT$mvpa_daily_total_AM == dat_AT$mvpa_daily_total_PM | 
+      dat_AT$mvpa_daily_total_AM == dat_AT$mvpa_daily_total_afternoon | 
+      dat_AT$mvpa_daily_total_PM == dat_AT$mvpa_daily_total_afternoon
+    ),
+  1,
+  0
+)
+
+
+# Step 2b: Create simple majority MVPA timing variable (single variable)
+# Correct classification for active_TOD
+dat_AT$active_TOD <- ifelse(dat_AT$who_acc ==1 &
+  dat_AT$active_AM == 1, "active_AM",
+  ifelse(dat_AT$who_acc ==1 &
+    dat_AT$active_afternoon == 1, "active_afternoon",
+    ifelse(dat_AT$who_acc ==1 &
+      dat_AT$active_PM == 1, "active_PM",
+        ifelse(
+          dat_AT$who_acc == 0, "Inactive",
+          "Unclassified" # Default case for unclassified rows
+        )
+      )
+    )
+  )
+
+
+# Convert active_TOD to a factor and set "Inactive" as the reference level
+dat_AT$active_TOD <- factor(dat_AT$active_TOD, levels = c("Inactive", "active_AM", "active_afternoon", "active_PM", "active_Mixed", "Unclassified"))
+
+# Check the frequency table of active_TOD
+table(dat_AT$active_TOD)
+
+dat_AT$active_TOD = as.factor(dat_AT$active_TOD)
+dat_AT$active_TOD = relevel(dat_AT$active_TOD, ref = "Inactive")
+
+
