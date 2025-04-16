@@ -7,7 +7,7 @@ library("patchwork")
 library ("scales")
 library("colorspace")
 
-## dat_AT dataframe from ***
+## dat_AT dataframe needed from Activity_Timing_Distribution
 
 ## Releveling time of day variable for MVPA adjusted analyses
 dat_AT$active_TOD = as.factor(dat_AT$active_TOD)
