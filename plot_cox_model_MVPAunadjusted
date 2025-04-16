@@ -1,7 +1,14 @@
+<<<<<<< HEAD
+### Assumes availability of certain data as flat files (please see README)
+
+=======
+### Assumes availability of specified fields as flat files (please see README) and the dat_AT dataframe (see seed.R)
+
 # Depends
-library('data.table')
-library('logistf')
+library(data.table)
+library(survival)
 library('tidyverse')
+library('ggsurvfit')
 library("patchwork")
 library("scales")
 library("colorspace")
