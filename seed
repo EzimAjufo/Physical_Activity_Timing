@@ -1,4 +1,4 @@
-## Creating dat_AT master dataframe
+## Creating dat_AT dataframe
 
 # Load data
 dat_AT = fread('complete_time_with_hours_121224.csv', stringsAsFactors = F, data.table = F)
