@@ -162,4 +162,63 @@ table(dat_AT$active_TOD)
 dat_AT$active_TOD = as.factor(dat_AT$active_TOD)
 dat_AT$active_TOD = relevel(dat_AT$active_TOD, ref = "Inactive")
 
+# Visualize distribution
+
+# Reshape the data from wide to long format and include active_TOD
+dat_long <- dat_AT %>%
+  select(starts_with("mvpa_hour"), active_TOD) %>% # Include active_TOD
+  pivot_longer(cols = starts_with("mvpa_hour"), 
+               names_to = "Hour", 
+               values_to = "MVPA") %>%
+  mutate(Hour = as.numeric(gsub("mvpa_hour", "", Hour))) # Extract numeric hour from variable names
+
+# Filter out rows where active_TOD is "Inactive", "Mixed", or MVPA is 0/NA
+dat_long <- dat_long %>%
+  filter(active_TOD != "Inactive" & active_TOD != "Unclassified" & !is.na(MVPA) & MVPA > 0)
+
+# Define custom labels for active_TOD (excluding Mixed)
+custom_labels <- c(
+  active_afternoon = "Afternoon",
+  active_AM = "Morning",
+  active_PM = "Evening"
+)
+
+# Adjusting the smoothing parameter (bandwidth)
+MVPA_TOD_distribution <- ggplot(dat_long, aes(x = Hour, weight = MVPA, fill = active_TOD)) +
+  geom_density(alpha = 0.5, bw = 1) + # Adjust the bandwidth with the `bw` parameter
+  scale_fill_manual(values = c("#006837", "#f46d43", "#343d85"), # Custom colors (excluding Mixed)
+                    labels = custom_labels) +
+  scale_x_continuous(
+    limits = c(0, 26), # Limit x-axis to 0-24 hours
+    breaks = seq(0, 26, by = 6), # Set breaks at 6-hour intervals
+    labels = c("0", "6", "12", "18", "24") # Custom labels for x-axis
+  ) +
+  scale_y_continuous(limits = c(0, 0.18),
+    breaks = seq(0, 0.18, by = 0.02) # Increase the number of horizontal gridlines
+  ) +
+  labs(title = "",
+       x = "Hour of the Day",
+       y = "Density",
+       color = "Active TOD Group",
+       fill = "Active TOD Group") +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.title = element_text(face = "bold", size = 14),
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 12), # Center and bold the title
+    panel.grid.minor.y = element_blank(),                         # Remove minor gridlines (optional)
+    panel.grid.major.x = element_blank(),                         # Ensure no vertical gridlines (optional)
+    axis.line.x = element_line(),                                 # Preserve axis lines
+    axis.line.y = element_line()
+  )
+
+# Display the plot
+print(MVPA_TOD_distribution)
+
+# Save the plot
+pdf("MVPA_TOD_distribution.pdf", width = 18, height = 12)  # Open the PDF device with specified dimensions in cm
+print(MVPA_TOD_distribution)  # Print the plot to the PDF device
+dev.off()  # Close the PDF device
+
+
 
