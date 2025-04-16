@@ -1,11 +1,12 @@
-# Depends 
+# Depends
+library('tidyverse')
+library('cmprsk')
+library('ggsurvfit')
+library("patchwork")
+library ("scales")
+library("colorspace")
 
-
-# Load exposure/covariate data
-
-
-
-## Releveling time of day variable
+## Releveling time of day variable MVPA unadjusted analyses
 dat_AT$active_TOD = as.factor(dat_AT$active_TOD)
 dat_AT$active_TOD = relevel(dat_AT$active_TOD, ref = "Inactive")
 
