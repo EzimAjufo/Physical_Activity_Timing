@@ -11,3 +11,318 @@ col3 <- c("#a50026","#f46d43", "#41ae76", "#006837", "#1a1a1a", "#d6604d", "#359
 
 ## Needs cox_models_MVPAadjusted output
 
+# Forestplot code
+
+# AF 
+# Collecting summaries
+dat_AF_activeTOD_mvpaadj = summary(Fit_AF_activeTOD_mvpaadj)
+
+# Extracting key columns, transform to dataframe        
+coef = dat_AF_activeTOD_mvpaadj$coefficients[, "coef"]
+SE = dat_AF_activeTOD_mvpaadj$coefficients[, "se(coef)"]
+p_value= dat_AF_activeTOD_mvpaadj$coefficients[, "p"]
+
+# Calculate exp(coef) and confidence intervals
+HR = exp(coef)
+conf_int_lower = exp(coef - 1.96 * SE)
+conf_int_upper = exp(coef + 1.96 * SE)
+
+# Combine into a dataframe
+dat_AF_activeTOD_mvpaadj_df = data.frame(
+  HR = HR,
+  conf_int_lower = conf_int_lower,
+  conf_int_upper = conf_int_upper,
+  p_value = p_value
+)
+
+dat_AF_activeTOD_mvpaadj_df_sub = dat_AF_activeTOD_mvpaadj_df[c(1:2),]
+
+# HF 
+# Collecting summaries
+dat_HF_activeTOD_mvpaadj = summary(Fit_HF_activeTOD_mvpaadj)
+
+# Extracting key columns, transform to dataframe        
+coef = dat_HF_activeTOD_mvpaadj$coefficients[, "coef"]
+SE = dat_HF_activeTOD_mvpaadj$coefficients[, "se(coef)"]
+p_value= dat_HF_activeTOD_mvpaadj$coefficients[, "p"]
+
+# Calculate exp(coef) and confidence intervals
+HR = exp(coef)
+conf_int_lower = exp(coef - 1.96 * SE)
+conf_int_upper = exp(coef + 1.96 * SE)
+
+# Combine into a dataframe
+dat_HF_activeTOD_mvpaadj_df = data.frame(
+  HR = HR,
+  conf_int_lower = conf_int_lower,
+  conf_int_upper = conf_int_upper,
+  p_value = p_value
+)
+
+dat_HF_activeTOD_mvpaadj_df_sub = dat_HF_activeTOD_mvpaadj_df[c(1:2),]
+
+# CAD 
+# Collecting summaries
+dat_MI_activeTOD_mvpaadj = summary(Fit_CADsoft_activeTOD_mvpaadj)
+
+# Extracting key columns, transform to dataframe        
+coef = dat_MI_activeTOD_mvpaadj$coefficients[, "coef"]
+SE = dat_MI_activeTOD_mvpaadj$coefficients[, "se(coef)"]
+p_value= dat_MI_activeTOD_mvpaadj$coefficients[, "p"]
+
+# Calculate exp(coef) and confidence intervals
+HR = exp(coef)
+conf_int_lower = exp(coef - 1.96 * SE)
+conf_int_upper = exp(coef + 1.96 * SE)
+
+# Combine into a dataframe
+dat_MI_activeTOD_mvpaadj_df = data.frame(
+  HR = HR,
+  conf_int_lower = conf_int_lower,
+  conf_int_upper = conf_int_upper,
+  p_value = p_value
+)
+
+dat_MI_activeTOD_mvpaadj_df_sub = dat_MI_activeTOD_mvpaadj_df[c(1:2),]
+
+# CVDeath 
+# Collecting summaries
+dat_CVdeath_activeTOD_mvpaadj = summary(Fit_CVdeath_activeTOD_mvpaadj)
+
+# Extracting key columns, transform to dataframe        
+coef = dat_CVdeath_activeTOD_mvpaadj$coefficients[, "coef"]
+SE = dat_CVdeath_activeTOD_mvpaadj$coefficients[, "se(coef)"]
+p_value= dat_CVdeath_activeTOD_mvpaadj$coefficients[, "p"]
+
+# Calculate exp(coef) and confidence intervals
+HR = exp(coef)
+conf_int_lower = exp(coef - 1.96 * SE)
+conf_int_upper = exp(coef + 1.96 * SE)
+
+# Combine into a dataframe
+dat_CVdeath_activeTOD_mvpaadj_df = data.frame(
+  HR = HR,
+  conf_int_lower = conf_int_lower,
+  conf_int_upper = conf_int_upper,
+  p_value = p_value
+)
+
+dat_CVdeath_activeTOD_mvpaadj_df_sub = dat_CVdeath_activeTOD_mvpaadj_df[c(1:2),]
+
+
+## Renaming rows, adding outcomes column
+
+# AF
+new_row_names_AFquartile <- c("AF_AM", "AF_Noon")
+
+rownames(dat_AF_activeTOD_mvpaadj_df_sub) <- new_row_names_AFquartile
+dat_AF_activeTOD_mvpaadj_df_sub$Outcome = rownames(dat_AF_activeTOD_mvpaadj_df_sub)
+
+# HF
+
+new_row_names_HFquartile <- c("HF_AM", "HF_Noon")
+
+rownames(dat_HF_activeTOD_mvpaadj_df_sub) <- new_row_names_HFquartile
+dat_HF_activeTOD_mvpaadj_df_sub$Outcome = rownames(dat_HF_activeTOD_mvpaadj_df_sub)
+
+# CAD
+
+new_row_names_MIquartile <- c("MI_AM", "MI_Noon")
+
+rownames(dat_MI_activeTOD_mvpaadj_df_sub) <- new_row_names_MIquartile
+dat_MI_activeTOD_mvpaadj_df_sub$Outcome = rownames(dat_MI_activeTOD_mvpaadj_df_sub)
+
+# CV Death
+
+new_row_names_deathquartile <- c("Death_AM", "Death_Noon")
+
+rownames(dat_CVdeath_activeTOD_mvpaadj_df_sub) <- new_row_names_deathquartile
+dat_CVdeath_activeTOD_mvpaadj_df_sub$Outcome = rownames(dat_CVdeath_activeTOD_mvpaadj_df_sub)
+
+# Binding the rows
+
+dat_activeTOD_mvpaadj_all = rbind(dat_AF_activeTOD_mvpaadj_df_sub, dat_HF_activeTOD_mvpaadj_df_sub, 
+                               dat_MI_activeTOD_mvpaadj_df_sub, dat_CVdeath_activeTOD_mvpaadj_df_sub)
+
+
+new_rows_Qu <- data.frame(
+  HR = rep(1, 4), # Repeat 1, four times for the new rows
+  conf_int_lower = rep(1, 4),
+  conf_int_upper = rep(1, 4),
+  p_value = NA, # Placeholder for p_value, assuming you'll fill this in later
+  Outcome = c("AF_PM", "HF_PM", "MI_PM", "Death_PM"))# The new row names
+
+
+## 
+# Calculating absolute number of events 
+
+# AF
+AF_events_Noon = sum(dat_AT_nobaselineAF$incd_af_accel ==1 & dat_AT_nobaselineAF$active_TOD== "active_afternoon", na.rm = TRUE)
+AF_events_AM = sum(dat_AT_nobaselineAF$incd_af_accel ==1 &  dat_AT_nobaselineAF$active_TOD== "active_AM", na.rm = TRUE)
+AF_events_PM = sum(dat_AT_nobaselineAF$incd_af_accel ==1 &  dat_AT_nobaselineAF$active_TOD== "active_PM", na.rm = TRUE)
+
+
+# HF
+HF_events_Noon = sum(dat_AT_nobaselineHF$incd_hf_accel ==1 & dat_AT_nobaselineHF$active_TOD== "active_afternoon", na.rm = TRUE)
+HF_events_AM = sum(dat_AT_nobaselineHF$incd_hf_accel ==1 &  dat_AT_nobaselineHF$active_TOD== "active_AM", na.rm = TRUE)
+HF_events_PM = sum(dat_AT_nobaselineHF$incd_hf_accel ==1 &  dat_AT_nobaselineHF$active_TOD== "active_PM", na.rm = TRUE)
+
+
+# MI
+MI_events_Noon = sum(dat_AT_nobaselineCADsoft$incd_cadsoft_accel ==1 & dat_AT_nobaselineCADsoft$active_TOD== "active_afternoon", na.rm = TRUE)
+MI_events_AM = sum(dat_AT_nobaselineCADsoft$incd_cadsoft_accel ==1 &  dat_AT_nobaselineCADsoft$active_TOD== "active_AM", na.rm = TRUE)
+MI_events_PM = sum(dat_AT_nobaselineCADsoft$incd_cadsoft_accel ==1 &  dat_AT_nobaselineCADsoft$active_TOD== "active_PM", na.rm = TRUE)
+
+# Death
+Death_events_Noon = sum(dat_AT$incident_disease ==1 & dat_AT$active_TOD== "active_afternoon", na.rm = TRUE)
+Death_events_AM = sum(dat_AT$incident_disease ==1 &  dat_AT$active_TOD=="active_AM", na.rm = TRUE)
+Death_events_PM = sum(dat_AT$incident_disease ==1 &  dat_AT$active_TOD=="active_PM", na.rm = TRUE)
+
+dat_activeTOD_mvpaadj_all <- rbind(dat_activeTOD_mvpaadj_all, new_rows_Qu)
+
+Total_Events_Qu = c(AF_events_AM, AF_events_Noon, 
+                    HF_events_AM, HF_events_Noon,
+                    MI_events_AM, MI_events_Noon, 
+                    Death_events_AM, Death_events_Noon,
+                    AF_events_PM, HF_events_PM, MI_events_PM, Death_events_PM)
+
+Total_Events_Prop_Qu = c((AF_events_AM /sum(dat_AT_nobaselineAF$active_TOD== "active_AM", na.rm = TRUE)), 
+                         (AF_events_Noon/sum(dat_AT_nobaselineAF$active_TOD== "active_afternoon", na.rm = TRUE)),
+                         (HF_events_AM /sum(dat_AT_nobaselineHF$active_TOD== "active_AM", na.rm = TRUE)), 
+                         (HF_events_Noon/sum(dat_AT_nobaselineHF$active_TOD== "active_afternoon", na.rm = TRUE)),
+                         (MI_events_AM /sum(dat_AT_nobaselineCADsoft$active_TOD== "active_AM", na.rm = TRUE)), 
+                         (MI_events_Noon/sum(dat_AT_nobaselineCADsoft$active_TOD== "active_afternoon", na.rm = TRUE)),
+                         (Death_events_AM /sum(dat_AT$active_TOD== "active_AM", na.rm = TRUE)), 
+                         (Death_events_Noon/sum(dat_AT$active_TOD== "active_afternoon", na.rm = TRUE)),
+                         (AF_events_PM /sum(dat_AT_nobaselineAF$active_TOD== "active_PM", na.rm = TRUE)), 
+                         (HF_events_PM /sum(dat_AT_nobaselineHF$active_TOD== "active_PM", na.rm = TRUE)), 
+                         (MI_events_PM /sum(dat_AT_nobaselineCADsoft$active_TOD== "active_PM", na.rm = TRUE)),
+                         (Death_events_PM /sum(dat_AT$active_TOD== "active_PM", na.rm = TRUE)))
+
+
+dat_activeTOD_mvpaadj_all$Total_Events = Total_Events_Qu
+dat_activeTOD_mvpaadj_all$Total_Events_Prop = Total_Events_Prop_Qu*100
+
+dat_activeTOD_mvpaadj_all$HR95CI <-  paste(
+  (sprintf("%.2f",dat_activeTOD_mvpaadj_all$HR)),
+  " ", 
+  "(",
+  (sprintf("%.2f",dat_activeTOD_mvpaadj_all$conf_int_lower)), 
+  "-", 
+  (sprintf("%.2f", dat_activeTOD_mvpaadj_all$conf_int_upper)), 
+  ")",
+  " ",
+  sep = ""
+)
+
+dat_activeTOD_mvpaadj_all$PropEvents <-  paste(
+  (dat_activeTOD_mvpaadj_all$Total_Events),
+  " ", 
+  "(",
+  (sprintf("%.2f",dat_activeTOD_mvpaadj_all$Total_Events_Prop)), 
+  "%",
+  ")",
+  " ",
+  sep = ""
+)
+
+
+# Step 1: Categorize outcomes based on their prefix
+dat_activeTOD_mvpaadj_all <- dat_activeTOD_mvpaadj_all %>%
+  mutate(Outcome_Category = case_when(
+    grepl("^AF", Outcome) ~ "AF",
+    grepl("^HF", Outcome) ~ "HF",
+    grepl("^MI", Outcome) ~ "MI",
+    grepl("^death", Outcome) ~ "Death",
+    TRUE ~ "Other" # Catches any outcomes not starting with AF, HF, MI, or Death
+  ))
+
+dat_activeTOD_mvpaadj_all <- dat_activeTOD_mvpaadj_all %>%
+  mutate(Activity_Pattern = case_when(
+    grepl("Noon", Outcome) ~ "Noon",
+    grepl("AM", Outcome) ~ "AM",
+    grepl("PM", Outcome) ~ "PM",
+    TRUE ~ "Other" # Catches any outcomes not starting with AF, HF, MI, or Death
+  ))
+
+## Adding spacer rows to dat_AF_model1_all
+
+new_dataframe_Qu <- data.frame(
+  HR = c(NA, NA, NA, NA),
+  conf_int_lower   = c(NA, NA, NA, NA),
+  conf_int_upper  = c(NA, NA, NA, NA), 
+  p_value = c(NA, NA, NA, NA), 
+  Outcome = c("AF_Q0", "HF_Q0", "MI_Q0","Death_Q0"), 
+  Total_Events = c(NA, NA, NA, NA), 
+  Total_Events_Prop = c(NA, NA, NA, NA),
+  HR95CI = c(NA, NA, NA, NA),
+  PropEvents = c(NA, NA, NA, NA),
+  Outcome_Category = c("AF", "HF", "MI", "Death"),
+Activity_Pattern = c("Noon", "PM", "AM", "AM"))
+
+dat_activeTOD_mvpaadj_all = rbind(dat_activeTOD_mvpaadj_all, new_dataframe_Qu)
+
+## Plotting forestplot
+forest_plot_activeTOD_mvpaadj <- ggplot(dat_activeTOD_mvpaadj_all, aes(x = factor(Outcome, levels = c("Death_PM","Death_Noon","Death_AM","Death_Q0", 
+                                                                                          "MI_PM","MI_Noon","MI_AM", "MI_Q0", 
+                                                                                          "HF_PM","HF_Noon","HF_AM","HF_Q0",  
+                                                                                          "AF_PM","AF_Noon","AF_AM", "AF_Q0")), 
+                                                           y = HR, ymin = conf_int_lower, ymax = conf_int_upper, color = Activity_Pattern)) +
+  geom_pointrange(position = position_dodge(width = 0.25), 
+                  size = 0.25) +
+  geom_hline(yintercept = 1, linetype = "dotted", color = "black") +
+  coord_flip() +
+  theme_classic() +
+  theme(axis.line.y = element_blank(),
+        axis.ticks.y= element_blank(),
+        axis.text.y= element_blank(),
+        axis.title.y = element_blank(), 
+        axis.title.x = element_text(face = "bold", size =10)) +
+  labs(x = "Risk Factor", y = "Hazard Ratio (HR)") +
+   ylim(0.4, 1.9) + 
+  scale_color_manual(values = c(col3[4], col3[2], col2[4])) +
+  theme(plot.margin = margin(5, 0,200,0)) +
+  guides(color = FALSE)
+
+
+p_mid_outcomes_activeTOD_mvpaadj = dat_activeTOD_mvpaadj_all  %>% 
+  ggplot(aes(y = factor(Outcome, levels = c("Death_PM","Death_Noon","Death_AM","Death_Q0", 
+                                            "MI_PM","MI_Noon","MI_AM", "MI_Q0", 
+                                             "HF_PM","HF_Noon","HF_AM","HF_Q0",  
+                                             "AF_PM","AF_Noon","AF_AM", "AF_Q0")))) +
+  geom_text(aes(x=0, label = Outcome), 
+            hjust =0, size = 3.5) +
+  geom_text(aes(x=12, label = Outcome),
+            hjust =0, size = 3.5) +
+  geom_text(aes(x=20, label = PropEvents), hjust =0, size = 3.5) + 
+  geom_text(aes(x=32, label = HR95CI), hjust =0, size = 3.5) + 
+  theme_void() +
+  coord_cartesian(xlim = c(0,45), ylim = c(0,20)) +
+  theme(plot.margin = margin(5, 0,300, 0)) +
+  
+  annotate("text", x = 0, y = 22, label = "\n\nOutcome", hjust = 0, fontface = "bold", size = 3.5, vjust = 1) +
+  annotate("text", x = 12, y = 22, label = "\nActivity \nPattern", hjust = 0, fontface = "bold", size = 3.5, vjust = 1) +
+  annotate("text", x = 20, y =22, label = "\n\nEvents (%)", fontface = "bold",, hjust = 0, size = 3.5, vjust = 1) +
+  annotate("text", x = 32, y = 22, label = "\n\nHR (95% CI)" , fontface = "bold", hjust = 0, size = 3.5, vjust = 1) +
+  
+  geom_segment(aes(x = 0, xend = 50, y = 16, yend =  16), color = "black", size = 0.6) +
+  geom_segment(aes(x = 0, xend = 50, y = 12, yend =  12), color = "black", size = 0.3) +
+  geom_segment(aes(x = 0, xend = 50, y = 8, yend =  8), color = "black", size = 0.3) +
+  geom_segment(aes(x = 0, xend = 50, y = 4, yend =  4), color = "black", size = 0.3) +
+
+  annotate("text", x = 0, y = 31, label = "\n\nE-value (Enull)", hjust = 0, fontface = "bold", size = 3.5, vjust = 1) 
+
+layout <- c(
+  area(t = 3, l = 0, b = 32, r = 35),
+  area(t = 6.5, l = 36, b = 32, r = 65),
+ area(t = 6.5, l = 66, b = 32, r = 68))  
+
+Combo_plot_activeTOD_mvpaadj = p_mid_outcomes_activeTOD_mvpaadj + forest_plot_activeTOD_mvpaadj + 
+plot_layout(design = layout)
+
+pdf()
+patchwork::wrap_plots(Combo_plot_activeTOD_mvpaadj) 
+ggsave("Combo_plot_activeTOD_mvpaadj.pdf", width = 27, height = 20, units = "cm")
+dev.off()
+
+Combo_plot_activeTOD_mvpaadj
