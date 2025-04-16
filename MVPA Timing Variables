@@ -1,15 +1,4 @@
-# Load key packages 
-
-install.packages('logistf')
-install.packages('tidyverse')
-install.packages('cmprsk')
-install.packages('ggsurvfit')
-install.packages("patchwork")
-install.packages("scales")
-install.packages("colorspace")
-
-
-suppressWarnings({
+# Depends
 library(magrittr)
 library('tidyverse')
 library('cmprsk')
@@ -17,7 +6,6 @@ library('ggsurvfit')
 library("patchwork")
 library ("scales")
 library("colorspace")
- })
 
 # Load data
 dat_AT = fread('complete_time_with_hours_121224.csv', stringsAsFactors = F, data.table = F)
