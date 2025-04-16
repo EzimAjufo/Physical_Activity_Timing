@@ -5,7 +5,7 @@
 
 
 
-# Releveling time of day variable
+## Releveling time of day variable
 dat_AT$active_TOD = as.factor(dat_AT$active_TOD)
 dat_AT$active_TOD = relevel(dat_AT$active_TOD, ref = "Inactive")
 
@@ -29,7 +29,7 @@ nrow(dat_AT_nobaselineCADsoft)
 dat_AT_nobaselineCADhard = subset(dat_AT, prev_cadhard_accel ==0)
 nrow(dat_AT_nobaselineCADhard)
 
-# MVPA unadjusted model
+## MVPA unadjusted model
 Fit_AF_activeTOD = coxph(Surv(time_accel_to_af, incd_af_accel) ~ factor(active_TOD) + factor(sex) + age_accel  + race_category_adjust +
                                      factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
                                      factor(etoh_status),
@@ -60,7 +60,7 @@ Fit_CVdeath_activeTOD = coxph(Surv(time_to_CVdeath, incident_disease) ~ factor(a
                                    data = dat_AT)
 summary(Fit_CVdeath_activeTOD)
 
-# Releveling time of day variable for MVPA adjusted analyses
+## Releveling time of day variable for MVPA adjusted analyses
 dat_AT$active_TOD = as.factor(dat_AT$active_TOD)
 dat_AT$active_TOD = relevel(dat_AT$active_TOD, ref = "active_PM")
 
@@ -87,7 +87,7 @@ nrow(dat_AT_nobaselineCADsoft)
 dat_AT_nobaselineCADhard = subset(dat_AT, prev_cadhard_accel ==0)
 nrow(dat_AT_nobaselineCADhard)
 
-# MVPA adjusted model
+## MVPA adjusted model
 Fit_AF_activeTOD_mvpaadj = coxph(Surv(time_accel_to_af, incd_af_accel) ~ active_TOD + factor(sex) + age_accel + race_category_adjust +
                                      factor(tob) + factor(employment_status) + factor(self_health) + factor(diet) + tdi + qual_ea +
                                      factor(etoh_status)  + pspline(mvpa_daily_total,3), 
