@@ -1,12 +1,14 @@
-# Depends
-library('tidyverse')
-library('cmprsk')
-library('ggsurvfit')
-library("patchwork")
-library ("scales")
-library("colorspace")
+<<<<<<< HEAD
+### Assumes availability of certain data as flat files (please see README)
 
-## dat_AT dataframe needed from Activity_Timing_Distribution
+=======
+### Assumes availability of specified fields as flat files (please see README) and the dat_AT dataframe (see seed.R)
+
+# Depends
+library(data.table)
+library(survival)
+library('tidyverse')
+library('ggsurvfit')
 
 ## Releveling time of day variable MVPA unadjusted analyses
 dat_AT$active_TOD = as.factor(dat_AT$active_TOD)
