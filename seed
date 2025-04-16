@@ -1,0 +1,64 @@
+## Creating dat_AT master dataframe
+
+# Load data
+dat_AT = fread('complete_time_with_hours_121224.csv', stringsAsFactors = F, data.table = F)
+dat_revokedconsent = fread('w7089_20241216.csv', stringsAsFactors = F, data.table = F)
+dat_CVmortality = fread('cv_death_restricted_v3_202307.tsv', stringsAsFactors = FALSE, data.table = FALSE)
+dat_CADhard= fread('cad_hard_202401.csv', stringsAsFactors = F, data.table = F)
+dat_CADsoft = fread('cad_202401.csv', stringsAsFactors = F, data.table = F)
+
+dat_CAD = merge(dat_CADhard, dat_CADsoft, by = "sample_id",
+                    suffix = c("_CADhard", "_CADsoft"))
+
+dat_AT = merge(dat_AT, dat_CAD, by = "sample_id", 
+              all.x = T, all.y = F)
+
+# Exclusions - revoked consent
+
+sum(dat_revokedconsent$V1 %in% dat_AT$sample_id)
+dat_AT <- dat_AT[!dat_AT$sample_id %in% dat_revokedconsent$V1, ]
+
+# Merging phenotype files
+
+dat_AT = merge(dat_AT, dat_CVmortality, by = "sample_id", all.x = TRUE, all.y = FALSE) 
+dim(dat_AT)
+
+# Create CV mortality variable
+dat_AT$time_to_CVdeathdays = as.numeric(difftime(dat_AT$censor_date, dat_AT$end_date, unit = "days"))
+dat_AT$time_to_CVdeath = dat_AT$time_to_CVdeathdays / 365
+
+# Create CAD-related variables 
+# Seedfile
+system(paste0('dx download exome-seq:ea/Projects/SedentaryTime/SedTime_Phewas/Phecode_Files/projects_skhurshid_sed_phewas_v1_cox_data_sed_110524.csv'))
+phecode_seed = fread('projects_skhurshid_sed_phewas_v1_cox_data_sed_110524.csv', stringsAsFactors = FALSE, data.table = FALSE, fill = TRUE, quote = "",check.names = FALSE)
+
+# Remove triple quotes from column names
+names(phecode_seed) <- gsub("\"", "", names(phecode_seed))
+names(phecode_seed)
+
+dat_AT <- merge(
+  dat_AT,
+  phecode_seed[, c("sample_id", "phenotype_censor_date")],
+  by = "sample_id",
+  all.x = TRUE
+)
+
+dat_AT$incident_disease_CADsoft = as.numeric(dat_AT$incident_disease_CADsoft)
+dat_AT$prevalent_disease_CADsoft = as.numeric(dat_AT$prevalent_disease_CADsoft)
+
+dat_AT$prev_cadsoft_accel = ifelse(dat_AT$prevalent_disease_CADsoft ==1 | 
+                                                  (dat_AT$incident_disease_CADsoft  ==1 & 
+                                                   dat_AT$censor_date_CADsoft <= dat_AT$end_date),
+                                                    1, 0)
+
+dat_AT$incd_cadsoft_accel= ifelse(dat_AT$incident_disease_CADsoft ==1 &
+                                                 dat_AT$censor_date_CADsoft > dat_AT$end_date, 1, 0)
+
+dat_AT$time_accel_to_cadsoft <- ifelse(
+  dat_AT$has_disease_CADsoft == 0 | is.na(dat_AT$has_disease_CADsoft),
+  pmin(
+    as.numeric(difftime(dat_AT$censor_date_CADsoft, dat_AT$end_date, units = "days")) / 365.25,
+    as.numeric(difftime(dat_AT$phenotype_censor_date, dat_AT$end_date, units = "days")) / 365.25
+  ),
+  as.numeric(difftime(dat_AT$censor_date_CADsoft, dat_AT$end_date, units = "days")) / 365.25
+)
