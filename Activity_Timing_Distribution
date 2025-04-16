@@ -1,7 +1,10 @@
-# Depends
+### Script to perform Physical Activity Timing Analyses
 
+<<<<<<< HEAD
+### Assumes availability of certain data as flat files (please see README)
 
-## dat_AT dataframe variable needed from ***
+=======
+### Assumes availability of specified fields as flat files (please see README) and the dat_AT dataframe 
 
 # Visualize distribution
 
