@@ -1,0 +1,13 @@
+# Depends
+library('data.table')
+library('logistf')
+library('tidyverse')
+library("patchwork")
+library("scales")
+library("colorspace")
+
+# Color palette 
+col3 <- c("#a50026","#f46d43", "#41ae76", "#006837", "#1a1a1a", "#d6604d", "#35978f")
+
+## Needs cox_models_MVPAadjusted output
+
