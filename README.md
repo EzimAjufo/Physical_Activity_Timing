@@ -15,6 +15,6 @@ Example scripts to perform analyses for the UKB Physical Activity Timing project
 -  All UKB data utilized are available by application (https://www.ukbiobank.ac.uk/enable-your-research/register)
 
   # Questions
-- Contact Shaan Khurshid (skhurshid@partners.org)
+- Contact Ezim Ajufo (eajufo@bwh.harvard.edu)
   
 
